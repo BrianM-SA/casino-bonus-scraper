@@ -136,8 +136,20 @@ def extract_bonus_sections(html: str, target_name: str, url: str) -> dict:
             seen.add(key)
             unique_snippets.append(snippet)
 
-    # Join the best snippets (up to top 15)
-    combined_terms = "\n\n---\n\n".join(unique_snippets[:15])
+    # Prioritize snippets containing key bonus signals so they aren't truncated
+    def snippet_score(snip):
+        s = snip.lower()
+        score = 0
+        if "welcome" in s or "match" in s: score += 10
+        if "%" in s: score += 8
+        if "wagering" in s or "wr" in s: score += 5
+        if "minimum deposit" in s or "min deposit" in s: score += 5
+        return score
+
+    unique_snippets.sort(key=snippet_score, reverse=True)
+
+    # Join the best snippets (up to top 8 highest-value sections)
+    combined_terms = "\n\n---\n\n".join(unique_snippets[:8])
 
     return {
         "casino_name": page_title.replace(" Review", "").strip(),
@@ -192,30 +204,38 @@ If a specific value is genuinely not present in the text, use "Not specified".
 
 RAW SCRAPED BONUS TEXT:
 \"\"\"
-{raw_data['raw_terms'][:4000]}
+{raw_data['raw_terms'][:2000]}
 \"\"\"
 
 Return ONLY raw JSON with keys: "casino_name", "welcome_bonus", "wagering_requirement", "min_deposit".
 Do not wrap in markdown quotes if possible, output pure JSON."""
 
-    # 1. Try Gemini if key is provided
+    # 1. Try Gemini REST API if key is provided
     if gemini_key:
-        try:
-            import google.generativeai as genai
-            genai.configure(api_key=gemini_key)
-            model = genai.GenerativeModel("gemini-2.0-flash")
-            response = model.generate_content(prompt)
-            clean_text = response.text.strip()
-            if clean_text.startswith("```"):
-                clean_text = clean_text.split("\n", 1)[1] if "\n" in clean_text else clean_text[3:]
-            if clean_text.endswith("```"):
-                clean_text = clean_text[:-3]
-            if clean_text.lower().startswith("json"):
-                clean_text = clean_text[4:].strip()
-            parsed = json.loads(clean_text)
-            return parsed
-        except Exception as e:
-            print(f"  [!] Gemini LLM extraction error: {e}")
+        for model in ["gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-3.8-flash"]:
+            try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={gemini_key}"
+                headers = {"Content-Type": "application/json"}
+                payload = {
+                    "contents": [{"parts": [{"text": prompt}]}]
+                }
+                res = requests.post(url, headers=headers, json=payload, timeout=20)
+                if res.status_code != 200:
+                    continue
+                data = res.json()
+                raw_text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+            
+                clean_text = raw_text
+                if clean_text.startswith("```"):
+                    clean_text = clean_text.split("\n", 1)[1] if "\n" in clean_text else clean_text[3:]
+                if clean_text.endswith("```"):
+                    clean_text = clean_text[:-3]
+                if clean_text.lower().startswith("json"):
+                    clean_text = clean_text[4:].strip()
+                parsed = json.loads(clean_text)
+                return parsed
+            except Exception as e:
+                continue
 
     # 2. Try OpenAI if key is provided
     if openai_key:
