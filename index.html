@@ -281,12 +281,8 @@
 <body>
     <div class="container">
         <header>
-            <div class="badge">
-                <span class="pulse-dot"></span>
-                <span>Structured by LLM</span>
-            </div>
             <h1>Casino Bonus Comparison</h1>
-            <p>Automated screening scraper comparing bonuses across top verified casinos</p>
+            <p>Compare welcome bonuses and promotional terms across verified casinos</p>
         </header>
 
         <main id="app">
@@ -295,7 +291,6 @@
 
         <footer>
             <p>Data source: <span id="source-name">Public Comparison Directory</span> · Last updated: <span id="scraped-date">—</span></p>
-            <p style="margin-top: 0.4rem;">Screening assessment submission · Brian · 2026</p>
         </footer>
     </div>
 
@@ -349,9 +344,9 @@
                             <tbody>`;
 
                 for (const item of data.casinos) {
-                    const wagerText = item.wagering_requirement && item.wagering_requirement !== "Not specified"
-                        ? `${esc(item.wagering_requirement)}x`
-                        : esc(item.wagering_requirement || "N/A");
+                    // Extract just the clean multiplier number (e.g. '35' from '35(b+d)' or '35x')
+                    const match = String(item.wagering_requirement || '').match(/\d+/);
+                    const wagerText = match ? `${match[0]}x` : (item.wagering_requirement || 'N/A');
 
                     tableHtml += `
                         <tr>
@@ -372,9 +367,8 @@
                 // ── Mobile Cards ────────────────────────────
                 let cardsHtml = '<div class="cards-view">';
                 for (const item of data.casinos) {
-                    const wagerText = item.wagering_requirement && item.wagering_requirement !== "Not specified"
-                        ? `${esc(item.wagering_requirement)}x`
-                        : esc(item.wagering_requirement || "N/A");
+                    const match = String(item.wagering_requirement || '').match(/\d+/);
+                    const wagerText = match ? `${match[0]}x` : (item.wagering_requirement || 'N/A');
 
                     cardsHtml += `
                         <article class="casino-card">

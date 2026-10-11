@@ -13,14 +13,14 @@
     {
       "casino_name": "ComicPlay Casino",
       "welcome_bonus": "250% up to $2500",
-      "wagering_requirement": "35(b+d)",
+      "wagering_requirement": "35",
       "min_deposit": "$30 (Neosurf $10)",
       "source_url": "https://lcb.org/casinos/comicplay-casino"
     },
     {
       "casino_name": "WinPort Casino",
       "welcome_bonus": "250% Sign Up Bonus",
-      "wagering_requirement": "35(b+d)",
+      "wagering_requirement": "35",
       "min_deposit": "€/$30",
       "source_url": "https://lcb.org/casinos/winport-casino"
     }

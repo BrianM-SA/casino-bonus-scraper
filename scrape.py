@@ -356,12 +356,15 @@ def main():
         # Standardize format as required by the assessment brief:
         # - Welcome bonus (e.g. 100% up to 500 EUR)
         # - Wagering requirement multiplier (e.g. 35)
-        # - Minimum deposit (e.g. 20 EUR)
-        # - Source URL
+        raw_wager = str(parsed.get("wagering_requirement", "Not specified"))
+        import re
+        wager_digits = re.search(r'\d+', raw_wager)
+        clean_wager = wager_digits.group(0) if wager_digits else "Not specified"
+
         record = {
             "casino_name": parsed.get("casino_name", raw["casino_name"]),
             "welcome_bonus": parsed.get("welcome_bonus", "Not specified"),
-            "wagering_requirement": str(parsed.get("wagering_requirement", "Not specified")).replace("x", "").strip(),
+            "wagering_requirement": clean_wager,
             "min_deposit": parsed.get("min_deposit", "Not specified"),
             "source_url": raw["source_url"],
         }
