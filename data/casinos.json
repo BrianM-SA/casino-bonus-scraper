@@ -1,0 +1,28 @@
+{
+  "scraped_at": "2026-10-11T18:55:44Z",
+  "source": "https://lcb.org",
+  "count": 3,
+  "casinos": [
+    {
+      "casino_name": "Shazam Casino",
+      "welcome_bonus": "250% up to $1000",
+      "wagering_requirement": "35",
+      "min_deposit": "$25",
+      "source_url": "https://lcb.org/casinos/shazam-casino"
+    },
+    {
+      "casino_name": "ComicPlay Casino",
+      "welcome_bonus": "250% up to $1000",
+      "wagering_requirement": "35",
+      "min_deposit": "$10",
+      "source_url": "https://lcb.org/casinos/comicplay-casino"
+    },
+    {
+      "casino_name": "WinPort Casino",
+      "welcome_bonus": "Welcome Package",
+      "wagering_requirement": "35",
+      "min_deposit": "$25",
+      "source_url": "https://lcb.org/casinos/winport-casino"
+    }
+  ]
+}
