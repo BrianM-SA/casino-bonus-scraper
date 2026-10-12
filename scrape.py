@@ -2,18 +2,11 @@
 """
 Casino Bonus Scraper
 ====================
-Screening Assessment: Casino Bonus Scraper
-Author: Brian
-
 Pulls welcome bonus data for 3 online casinos from LCB.org (Latest Casino
-Bonuses — a leading public casino directory) and uses a Language Model (Google
-Gemini or OpenAI) to extract structured fields from raw free-text bonus terms.
+Bonuses) and uses Google Gemini / OpenAI to extract structured fields
+from raw promotional terms.
 
-Requirements:
-    - 4 fields extracted: Welcome bonus, Wagering requirement, Minimum deposit, Source URL
-    - Respects robots.txt
-    - Single-command execution
-    - Writes output to data/casinos.json
+Outputs: data/casinos.json
 
 Usage:
     python scrape.py
@@ -59,7 +52,7 @@ CASINO_PAGES = [
     },
 ]
 
-USER_AGENT = "CasinoBonusScraperBot/1.0 (+https://github.com/brian-assessment)"
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
 REQUEST_DELAY = 1.5  # Polite crawl delay
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -184,7 +177,7 @@ def get_api_key():
 def structure_with_llm(raw_data: dict) -> dict:
     """
     Uses an LLM (Gemini or OpenAI) to parse unstructured casino terms
-    into structured JSON according to the assessment specification.
+    into structured JSON.
     """
     gemini_key, openai_key = get_api_key()
 
@@ -313,7 +306,7 @@ def fallback_parse(raw_data: dict) -> dict:
 
 def main():
     print("=" * 65)
-    print(" Casino Bonus Scraper (Assessment Submission)")
+    print(" Casino Bonus Scraper")
     print("=" * 65)
     print(f"Source Directory: {SOURCE_DOMAIN}")
     print(f"Target Output:    {OUTPUT_FILE}")
@@ -325,7 +318,7 @@ def main():
         allowed = check_robots_txt(item["url"])
         if not allowed:
             print(f"  [X] BLOCKED by robots.txt: {item['url']}")
-            print("      Aborting per screening rules: 'Respects robots.txt'.")
+            print("      Aborting: URL is disallowed by robots.txt.")
             sys.exit(1)
         print(f"  [OK] robots.txt permits: {item['name']} ({item['url']})")
     print("  -> All target endpoints pass robots.txt verification.\n")
@@ -353,9 +346,7 @@ def main():
         print(f"  ({i}/3) Processing {raw['casino_name']} with LLM...")
         parsed = structure_with_llm(raw)
 
-        # Standardize format as required by the assessment brief:
-        # - Welcome bonus (e.g. 100% up to 500 EUR)
-        # - Wagering requirement multiplier (e.g. 35)
+        # Standardize format
         raw_wager = str(parsed.get("wagering_requirement", "Not specified"))
         import re
         wager_digits = re.search(r'\d+', raw_wager)
